@@ -20,7 +20,7 @@ public sealed class Booking : Entity
 		DateTime createdOnUtc
 		) : base(id)
 	{
-		AparmentId = apartmentId;
+		ApartmentId = apartmentId;
 		UserId = userId;
 		Duration = duration;
 		PriceForPeriod = priceForPeriod;
@@ -31,7 +31,7 @@ public sealed class Booking : Entity
 		CreatedOnUtc = createdOnUtc;
 	}
 
-	public Guid AparmentId { get; private set; }
+	public Guid ApartmentId { get; private set; }
 	public Guid UserId { get; private set; }
 	public DateRange Duration { get; private set; }
 	public Money PriceForPeriod { get; private set; }
