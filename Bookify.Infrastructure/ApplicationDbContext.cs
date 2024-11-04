@@ -1,12 +1,15 @@
 ﻿using Bookify.Domain.Abstractions;
+using MediatR;
 using Microsoft.EntityFrameworkCore;
 
 namespace Bookify.Infrastructure;
 
 public sealed class ApplicationDbContext : DbContext, IUnitOfWork
 {
-	public ApplicationDbContext(DbContextOptions options) : base(options)
+	private readonly IPublisher publisher;
+	public ApplicationDbContext(DbContextOptions options, IPublisher publisher) : base(options)
 	{
+		this.publisher = publisher;
 	}
 
 	protected override void OnModelCreating(ModelBuilder modelBuilder)
@@ -14,5 +17,35 @@ public sealed class ApplicationDbContext : DbContext, IUnitOfWork
 		modelBuilder.ApplyConfigurationsFromAssembly(typeof(ApplicationDbContext).Assembly);
 
 		base.OnModelCreating(modelBuilder);
+	}
+
+	public override async Task<int> SaveChangesAsync(CancellationToken cancellationToken = default)
+	{
+		var result = await base.SaveChangesAsync(cancellationToken);
+
+		await PublishDomainEventsAsync();
+
+		return result;
+	}
+
+	private async Task PublishDomainEventsAsync()
+	{
+		var domainEvents = ChangeTracker
+			.Entries<Entity>()
+			.Select(entry => entry.Entity)
+			.SelectMany(entity =>
+			{
+				var domainEvents = entity.GetDomainEvents();
+
+				entity.ClearDomainEvents();
+
+				return domainEvents;
+			})
+			.ToList();
+
+		foreach (var domainEvent in domainEvents)
+		{
+			await publisher.Publish(domainEvent);
+		}
 	}
 }
