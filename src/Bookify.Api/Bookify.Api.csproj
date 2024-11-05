@@ -11,6 +11,8 @@
   </PropertyGroup>
 
   <ItemGroup>
+	<PackageReference Include="Bogus" Version="35.4.0" />
+	<PackageReference Include="Microsoft.AspNetCore.OpenApi" Version="8.0.1" />
     <PackageReference Include="Microsoft.EntityFrameworkCore.Tools" Version="8.0.0">
       <PrivateAssets>all</PrivateAssets>
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
